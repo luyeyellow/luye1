@@ -1,0 +1,48 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title></title>
+    <link href="css/jquery.fancybox.css" rel="stylesheet" />
+    <script src="../script/jquery-1.7.2.js"></script>
+    <script src="../script/jquery.fancybox.js"></script>
+
+    
+    <script>
+        $(function () {
+            //弹出层
+            //$.fancybox.open($("#fancybox"));
+            //$.fancybox.showLoading();
+            //$.fancybox.hideLoading();
+            //$("#btnClose").click(function () {
+            //    $.fancybox.close();
+            //})
+
+            $('#btn').fancybox({
+                openEffect: 'elastic', // 'elastic', 'fade' or 'none'
+                openSpeed: 150,
+
+                closeEffect: 'elastic',
+                closeSpeed: 150,
+
+                closeBtn: false,
+                beforeLoad: function () {
+                    //alert("beforeLoad");
+                    //$("#inline1 h3").text("添加图片");
+                },
+                afterClose: function () {
+                    //alert("aaa");
+                }
+            });
+        })
+    </script>
+</head>
+<body>
+    <a id="btn" class="fancybox" href="#d1" title="demo">open</a>
+
+    <div id="d1" style="display:none; width:300px">
+        <input type="text" />
+
+    </div>
+</body>
+</html>

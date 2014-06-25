@@ -1,0 +1,37 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title></title>
+    <script src="../script/jquery-1.7.2.js"></script>
+    <script>    
+        $(function () {
+            $("#txt").keyup(function () {
+                var name = this.value;
+                if (name.length < 5) {
+                    $("#span").text("用户名至少5个字符");
+                    return;
+                }
+
+                $.get("handler/02-checkname.ashx", { n: name }, function (msg) {
+                    if (msg == 1) {
+                        $("#span").text("用户名可用");
+                    } else {
+                        $("#span").text("用户名已存在");
+                    }
+                });
+
+            })
+        })
+
+    </script>
+</head>
+<body>
+    <input id="txt" type="text" /><span id="span"></span><br />
+    <input type="text" /><br />
+    <input type="text" /><br />
+    <input type="text" /><br />
+    <input type="text" /><br />
+    <input type="button" value="注册" />
+</body>
+</html>

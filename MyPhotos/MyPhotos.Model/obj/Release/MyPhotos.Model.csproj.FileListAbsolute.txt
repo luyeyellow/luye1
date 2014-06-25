@@ -1,0 +1,5 @@
+E:\传智播客\2013年12月27日班\2014-03-15-aspnet-11\MyPhotos\MyPhotos.Model\bin\Release\MyPhotos.Model.dll
+E:\传智播客\2013年12月27日班\2014-03-15-aspnet-11\MyPhotos\MyPhotos.Model\bin\Release\MyPhotos.Model.pdb
+E:\传智播客\2013年12月27日班\2014-03-15-aspnet-11\MyPhotos\MyPhotos.Model\obj\Release\MyPhotos.Model.csprojResolveAssemblyReference.cache
+E:\传智播客\2013年12月27日班\2014-03-15-aspnet-11\MyPhotos\MyPhotos.Model\obj\Release\MyPhotos.Model.dll
+E:\传智播客\2013年12月27日班\2014-03-15-aspnet-11\MyPhotos\MyPhotos.Model\obj\Release\MyPhotos.Model.pdb

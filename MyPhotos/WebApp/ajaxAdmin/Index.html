@@ -1,0 +1,235 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title></title>
+    <style>
+        #tb {
+            border:1px solid red;
+            border-collapse:collapse;
+            width:700px;
+        }
+        #tb td, #tb th {
+           border:1px solid red;
+        }
+    </style>
+    <link href="css/jquery.fancybox.css" rel="stylesheet" />
+    <script src="../script/jquery-1.7.2.js"></script>
+    <script src="../script/jquery.fancybox.js"></script>
+    <script src="../script/json2.js"></script>
+    <script>
+        // add 添加  update 修改
+        var action;
+
+        $(function () {
+           
+            $("#btnAdd").click(function () {
+                //记录当前操作
+                action = "add";
+            })
+
+            //弹出添加的层
+            $('#btnAdd').fancybox({
+                openEffect: 'elastic', // 'elastic', 'fade' or 'none'
+                openSpeed: 150,
+                closeEffect: 'elastic',
+                closeSpeed: 150,
+                closeBtn: false,
+                beforeLoad: function () {
+                },
+                afterClose: function () {
+                }
+            });
+
+            //取消
+            $("#btnCancel").click(function () {
+                action = "";
+                //关闭层
+                $.fancybox.close();
+                //清空文本框
+                $("#f1 input[name]").val("");
+            })
+
+            //确定
+            $("#btnSure").click(function () {
+                //$().serialize()     txtTitle=aa&txtUrl=bb
+                //var jsonStr = '{ "txtTitle": "aa","":"" }'  我们需要求此形式的数据
+                //获取数据  $("#f1").serializeArray()  方法返回数据的格式
+                //  [{"name":"PTitle","value":"aaa"},{},{}]
+                var array = $("#f1").serializeArray();
+                //构造我们需要的json对象 { "PTitle": "aa","PUrl":"" }
+                var json = {};
+                $.each(array, function () {
+                    //this  当前遍历到的项  json对象
+                    json[this.name] = this.value;
+                })
+                json["PTypeId"] = 1;//
+                if (action == "add") {
+                    json.PId = 0;  //当添加的时候如果pid的值是空，一般处理程序会出现异常
+                }
+                //json={"PTitle":"123",""：""}  字符串
+                //把json对象转换成json形式的字符串   JSON.stringify  ie6中不支持
+                var jsonStr = JSON.stringify(json);
+                //发送异步请求，添加
+                $.post("handler/06-add.ashx", { json: jsonStr,action:action }, function (msg) {
+                    if (msg == 1) {
+                        //关闭层
+                        $("#btnCancel").click();
+                        //加载列表
+                        loadPhotos();
+                    } else {
+                        alert("操作失败");
+                    }
+                });
+               
+            })
+
+            $("#d1").text("正在努力加载...");
+            loadPhotos();
+        })
+        var pageIndex = 1;
+        //异步加载图片列表
+        function loadPhotos() {
+            $.ajax({
+                cache:false,
+                type: "get",
+                url: "handler/05-getpaged.ashx",
+                data: { page: pageIndex },
+                dataType:"json",
+                success: function (json) {
+                    var tb = json.tb;
+                    var pageCount = json.pageCount;
+
+                    //生成表格
+                    $("#d1").html(tb);
+
+                    //生成页码条
+                    createPagebar(pageCount);
+
+                    //等待删除按钮生成之后才能注册事件
+                    //给删除按钮注册事件
+                    attachDelete();
+
+
+                    //给编辑按钮注册事件
+                    attachEdit();
+                },
+                error: function () {
+                    $("#d1").text("服务器内部错误");
+                }
+            })
+        }
+        //给编辑按钮注册事件
+        function attachEdit() {
+            $(".edit").click(function () {
+                //记录当前操作
+                action = "update";
+
+                var pid = this.getAttribute("pid");
+                //弹出层
+                $.fancybox.open($("#panel"));
+                //发送异步请求，根据id获取图片对象
+                $.getJSON("handler/07-getphotobypid.ashx", { id: pid }, function (json) {
+                    $("#f1 input[name=PTitle]").val(json.PTitle);
+                    $("#f1 input[name=PUrl]").val(json.PUrl);
+                    $("#f1 input[name=PDes]").val(json.PDes);
+
+                    $("#f1 input[name=PId]").val(json.PId);
+                })
+            })
+        }
+
+        //生成页码条
+        function createPagebar(pageCount) {
+            //首页
+            var $first = $("<a href='javascript:void(0)'>首页</a>");
+            $("#d1").append($first);
+            $first.click(function () {
+                if (pageIndex > 1) {
+                    pageIndex = 1;
+                    loadPhotos();
+                }
+            })
+
+            //上一页
+            var $pre = $("<a href='javascript:void(0)'>上一页</a>");
+            $("#d1").append($pre);
+            $pre.click(function () {
+                if (pageIndex > 1) {
+                    pageIndex--;
+                    loadPhotos();
+                }
+            })
+
+
+            //下一页
+            var $next = $("<a href='javascript:void(0)'>下一页</a>");
+            $("#d1").append($next);
+            $next.click(function () {
+                if (pageIndex <pageCount) {
+                    pageIndex++;
+                    loadPhotos();
+                }
+            })
+
+            //尾页
+            var $last = $("<a href='javascript:void(0)'>尾页</a>");
+            $("#d1").append($last);
+            $last.click(function () {
+                if (pageIndex < pageCount) {
+                    pageIndex = pageCount;
+                    loadPhotos();
+                }
+            })
+
+            $("#d1").append("&nbsp;&nbsp;<span>"+pageIndex+"/"+pageCount+"</span>");
+        }
+
+        //给删除按钮注册事件
+        function attachDelete() {
+            $(".del").click(function () {
+                if (confirm("确定删除？")) {
+                    //删除
+                    var pid = this.getAttribute("pid");
+                    //
+                    $.ajax({
+                        type: "get",
+                        url: "handler/04-delete.ashx",
+                        data: { id: pid },
+                        success: function (msg) {
+                            if (msg == 1) {
+                                //删除成功
+                                loadPhotos();
+                            } else {
+                                alert("删除失败");
+                            }
+                        },
+                        error: function () {
+                            alert("删除出错");
+                        }
+                    })
+                }
+            })
+        }
+    </script>
+</head>
+<body>
+    <center>
+        <h3>管理员页面</h3>
+        <br />
+        <a id="btnAdd" href="#panel">添加</a>
+        <div id="d1"></div>
+    </center>
+    <div id="panel" style="display:none;width:300px">
+        
+        <form id="f1">
+            <input type="hidden" name="PId" />
+        <!--相册：<select name="PTypeId"></select><br />-->
+        标题：<input name="PTitle" type="text" /><br />
+        路径：<input name="PUrl" type="text" /><br />
+        描述：<input name="PDes" type="text" /><br />
+        <input id="btnSure" type="button" value="确定" /> <input id="btnCancel" type="button" value="取消" />
+        </form>
+    </div>
+</body>
+</html>
